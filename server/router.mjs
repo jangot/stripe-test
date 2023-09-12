@@ -54,10 +54,18 @@ api.post('/create-session', async (req, res) => {
 api.get('/checkout-session/:id', async (req, res) => {
     const { id } = req.params;
 
-    const checkoutSession = await stripe.checkout.sessions.retrieve(id, {
-        expand: ['customer', 'setup_intent.payment_method']
-    });
+    try {
+        const checkoutSession = await stripe.checkout.sessions.retrieve(id, {
+            expand: ['customer', 'setup_intent.payment_method']
+        });
 
-    console.log(checkoutSession);
-    res.send({ checkoutSession });
+        console.log(checkoutSession);
+        res.send({ checkoutSession });
+    } catch (error) {
+        console.log(error);
+
+        res.status(401);
+        res.send({ error });
+    }
+
 });

@@ -65,7 +65,12 @@ $(async () => {
 
     if(sessionId) {
         const data = await api.checkoutSession(sessionId);
-        const { checkoutSession } = data;
+        const { checkoutSession, error } = data;
+
+        if (error) {
+            $('#result').html(`<pre class="text-danger">${JSON.stringify(error, null, 4)}</pre>`);
+            return;
+        }
 
         if (checkoutSession) {
             localStorage.setItem(
