@@ -39,6 +39,7 @@ api.post('/create-session', async (req, res) => {
             success_url: successUrl,
             cancel_url: cancelUrl,
         });
+        console.log(customer, checkoutSession);
 
         res.send({ customer, checkoutSession, body: req.body });
     } catch (error) {

@@ -1,5 +1,6 @@
 const STORAGE_KEY = {
     CUSTOMER: 'stripeCustomer',
+    SESSION: 'session'
 };
 
 const api = {
@@ -38,7 +39,10 @@ $(async () => {
     const customerJson = localStorage.getItem(STORAGE_KEY.CUSTOMER);
     if (customerJson) {
         const customer = JSON.parse(customerJson);
-        $('#customer').html(`<pre>${JSON.stringify(customer, null, 4)}</pre>`)
+        $('#customer').html(`<pre>${JSON.stringify(customer, null, 4)}</pre>`);
+
+        const full = JSON.parse(localStorage.getItem(STORAGE_KEY.SESSION));
+        $('#full').html(`<pre>${JSON.stringify(full, null, 4)}</pre>`);
     }
 
     const { purchase, publishableKey } = await api.loadConfig();
@@ -56,9 +60,9 @@ $(async () => {
     });
 
     if(sessionId) {
-        const { checkoutSession } = await api.checkoutSession(sessionId);
+        const data = await api.checkoutSession(sessionId);
+        const { checkoutSession } = data;
 
-        console.log(checkoutSession)
         if (checkoutSession) {
             localStorage.setItem(
                 STORAGE_KEY.CUSTOMER,
@@ -68,6 +72,10 @@ $(async () => {
                     last4: checkoutSession.setup_intent.payment_method.card.last4
                 })
             );
+            localStorage.setItem(
+                STORAGE_KEY.SESSION,
+                JSON.stringify(data)
+            )
             window.location.replace('/');
         }
     }
