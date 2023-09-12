@@ -17,13 +17,15 @@ const api = {
             cancelUrl: document.location.origin
         };
 
-        return await fetch('/api/create-session', {
+        const res = await fetch('/api/create-session', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
-        }).then(res => res.json());
+        });
+
+        return  res.json();
     },
     checkoutSession: async (sessionId) => {
         const res = await fetch(`/api/checkout-session/${sessionId}`);
@@ -48,14 +50,16 @@ $(async () => {
     const { purchase, publishableKey } = await api.loadConfig();
     const stripe = Stripe(publishableKey);
 
-    $('#create-customer').submit(async () => {
+    $('#create-customer').submit(() => {
         const email = $('#email').val();
         const phone = $('#phone').val();
-        const data = await api.createSession({ email, phone });
+        api.createSession({ email, phone })
+            .then((data) => {
+                $('#result').html(`<pre>${JSON.stringify(data, null, 4)}</pre>`);
 
-        $('#result').html(`<pre>${JSON.stringify(data, null, 4)}</pre>`)
+                return stripe.redirectToCheckout({ sessionId: data.checkoutSession.id });
+            });
 
-        await stripe.redirectToCheckout({ sessionId: data.checkoutSession.id });
         return false;
     });
 
